@@ -9,7 +9,12 @@
         android:id="@+id/navigation_home"
         android:name="com.anatame.favdish.view.fragments.AllDishesFragment"
         android:label="@string/title_home"
-        tools:layout="@layout/fragment_all_dishes" />
+        tools:layout="@layout/fragment_all_dishes" >
+        <action
+            android:id="@+id/action_navigation_home_to_blankFragment"
+            app:destination="@id/blankFragment"
+            app:enterAnim="@anim/slide_in_left" />
+    </fragment>
 
     <fragment
         android:id="@+id/navigation_dashboard"
@@ -22,4 +27,20 @@
         android:name="com.anatame.favdish.view.fragments.NotificationsFragment"
         android:label="@string/title_notifications"
         tools:layout="@layout/fragment_notifications" />
+    <fragment
+        android:id="@+id/blankFragment"
+        android:name="com.anatame.favdish.view.fragments.BlankFragment"
+        android:label="fragment_blank"
+        tools:layout="@layout/fragment_blank" >
+        <action
+            android:id="@+id/action_blankFragment_to_blankFragment2"
+            app:destination="@id/blankFragment2"
+            app:popUpTo="@id/blankFragment"
+            app:popUpToInclusive="false" />
+    </fragment>
+    <fragment
+        android:id="@+id/blankFragment2"
+        android:name="com.anatame.favdish.view.fragments.BlankFragment2"
+        android:label="fragment_blank2"
+        tools:layout="@layout/fragment_blank2" />
 </navigation>

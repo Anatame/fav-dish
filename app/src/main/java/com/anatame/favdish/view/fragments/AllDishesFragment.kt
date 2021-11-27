@@ -4,13 +4,16 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.TextView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import com.anatame.favdish.R
 import com.anatame.favdish.databinding.FragmentAllDishesBinding
 import com.anatame.favdish.view.activities.AddUpdateDishActivity
 import com.anatame.favdish.viewmodel.HomeViewModel
+import java.util.*
 
 class AllDishesFragment : Fragment() {
 
@@ -43,6 +46,9 @@ class AllDishesFragment : Fragment() {
         homeViewModel.text.observe(viewLifecycleOwner, Observer {
             textView.text = it
         })
+
+
+
         return root
     }
 
