@@ -18,5 +18,9 @@
     <string name="lbl_cooking_time_in_minutes">Cooking Time In Minutes</string>
     <string name="lbl_direction_to_cook">Direction To Cook</string>
     <string name="lbl_add_dish">ADD DISH</string>
+    <string name="add_dish">Add Dish</string>
+    <string name="title_select_image">Select Image</string>
+    <string name="lbl_camera">Camera</string>
+    <string name="lbl_gallery">Gallery</string>
     <!--END-->
 </resources>
