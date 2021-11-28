@@ -1,24 +1,31 @@
 package com.anatame.favdish.view.activities
 
 import android.Manifest
+import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.provider.MediaStore
 import android.provider.Settings
 import android.view.View
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import com.anatame.favdish.R
 import com.anatame.favdish.databinding.ActivityAddUpdateDishBinding
 import com.anatame.favdish.databinding.DialogCustomImageSelectionBinding
 import com.karumi.dexter.Dexter
 import com.karumi.dexter.MultiplePermissionsReport
 import com.karumi.dexter.PermissionToken
+import com.karumi.dexter.listener.PermissionDeniedResponse
+import com.karumi.dexter.listener.PermissionGrantedResponse
 import com.karumi.dexter.listener.PermissionRequest
 import com.karumi.dexter.listener.multi.MultiplePermissionsListener
+import com.karumi.dexter.listener.single.PermissionListener
 
 class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
 
@@ -56,12 +63,11 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                 Manifest.permission.CAMERA
             ).withListener(object : MultiplePermissionsListener{
                 override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                    if(report!!.areAllPermissionsGranted()){
-                        Toast.makeText(this@AddUpdateDishActivity,
-                            "You have granted camera permissions",
-                            Toast.LENGTH_SHORT).show()
-                    } else {
-                        showRationalDialogForPermissions()
+                    report?.let {
+                        if(report.areAllPermissionsGranted()){
+                            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+                            startActivityForResult(intent, CAMERA)
+                        }
                     }
                 }
 
@@ -80,24 +86,24 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
         binding.tvGallery.setOnClickListener{
             Toast.makeText(this, "Galery Clicked", Toast.LENGTH_SHORT).show()
 
-            Dexter.withContext(this).withPermissions(
+            Dexter.withContext(this).withPermission(
                 Manifest.permission.READ_EXTERNAL_STORAGE,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.CAMERA
-            ).withListener(object : MultiplePermissionsListener{
-                override fun onPermissionsChecked(report: MultiplePermissionsReport?) {
-                    if(report!!.areAllPermissionsGranted()){
-                        Toast.makeText(this@AddUpdateDishActivity,
-                            "You have granted camera permissions",
-                            Toast.LENGTH_SHORT).show()
-                    } else {
-                        showRationalDialogForPermissions()
-                    }
+            ).withListener(object : PermissionListener{
+                override fun onPermissionGranted(p0: PermissionGrantedResponse?) {
+                    val galleryIntent = Intent(Intent.ACTION_PICK,
+                                            MediaStore.Images.Media.EXTERNAL_CONTENT_URI)
+                    startActivityForResult(galleryIntent, GALLERY)
+                }
+
+                override fun onPermissionDenied(p0: PermissionDeniedResponse?) {
+                    Toast.makeText(this@AddUpdateDishActivity,
+                        "You have denied storage permissions",
+                        Toast.LENGTH_SHORT).show()
                 }
 
                 override fun onPermissionRationaleShouldBeShown(
-                    permissions: MutableList<PermissionRequest>?,
-                    token: PermissionToken?
+                    p0: PermissionRequest?,
+                    p1: PermissionToken?
                 ) {
                     showRationalDialogForPermissions()
                 }
@@ -108,6 +114,34 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
         }
 
         dialog.show()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == CAMERA){
+                data?.extras.let {
+                    val thumbnail : Bitmap = data?.extras?.get("data") as Bitmap
+                    mBinding.ivDishImage.setImageBitmap(thumbnail)
+                }
+
+            }
+        }
+        if(resultCode == Activity.RESULT_OK){
+            if(requestCode == GALLERY){
+                data?.let {
+                    val selectedPhotoUri = data.data
+                    mBinding.ivDishImage.setImageURI(selectedPhotoUri)
+                    mBinding.ivAddDishImage.setImageDrawable(
+                        ContextCompat.getDrawable(this, R.drawable.ic_baseline_edit_24)
+                    )
+                }
+
+            }
+        }
+
+
     }
 
     private fun showRationalDialogForPermissions(){
@@ -129,5 +163,10 @@ class AddUpdateDishActivity : AppCompatActivity(), View.OnClickListener {
                 dialog.dismiss()
             }
             .show()
+    }
+
+    companion object{
+        private const val CAMERA = 1
+        private const val GALLERY = 2
     }
 }
